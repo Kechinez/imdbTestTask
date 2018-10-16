@@ -18,7 +18,9 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         createSearchBar()
-        tableView.rowHeight = 90
+        //tableView.rowHeight = 94
+        //tableView.rowHeight = UITableViewAutomaticDimension
+        //tableView.estimatedRowHeight = 110
         //tableView.estimatedRowHeight = 300
         
     }
@@ -32,6 +34,14 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
         navigationItem.titleView = searchBar
     }
     
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
+    }
     
     
     
@@ -50,6 +60,7 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
         }
         //searchBar.isFirstResponder = false
         searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -119,7 +130,7 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
         }
         
         
-        cell.title.text = movie.title
+        cell.title.text = movie.title//"The great history of how germans took a shit and then went away. Part I"movie.title
         cell.genre.text = movie.year
         return cell
     }
