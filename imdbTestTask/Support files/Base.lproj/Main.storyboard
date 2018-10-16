@@ -6,6 +6,8 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -13,19 +15,60 @@
         <scene sceneID="oWZ-d2-h7n">
             <objects>
                 <tableViewController id="66s-7h-WK2" customClass="MoviesTableViewController" customModule="imdbTestTask" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="Yd5-ug-VKg">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="Yd5-ug-VKg">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="I54-tD-8VG"/>
+                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="movieCell" id="z6a-Ab-vRP">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="movieCell" rowHeight="80" id="z6a-Ab-vRP" customClass="MovieCell" customModule="imdbTestTask" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="375" height="80"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="z6a-Ab-vRP" id="ekH-WK-mPw">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="79.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="titanic" translatesAutoresizingMaskIntoConstraints="NO" id="13O-AF-4SO">
+                                            <rect key="frame" x="7" y="5" width="51.5" height="69.5"/>
+                                            <color key="backgroundColor" red="1" green="0.9211425781" blue="0.071940104170000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="nJY-zC-1iD" userLabel="genreAndYear">
+                                            <rect key="frame" x="69.5" y="34" width="298.5" height="14"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="c67-6l-DNL" userLabel="title">
+                                            <rect key="frame" x="69.5" y="11" width="298.5" height="20.5"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="c67-6l-DNL" secondAttribute="trailing" constant="7" id="1gO-A3-7Tf"/>
+                                        <constraint firstItem="nJY-zC-1iD" firstAttribute="leading" secondItem="13O-AF-4SO" secondAttribute="trailing" constant="11" id="CzR-zT-Wsd"/>
+                                        <constraint firstAttribute="trailing" secondItem="nJY-zC-1iD" secondAttribute="trailing" constant="7" id="F2y-k1-Ilh"/>
+                                        <constraint firstItem="13O-AF-4SO" firstAttribute="top" secondItem="ekH-WK-mPw" secondAttribute="top" constant="5" id="Rec-rb-5oY"/>
+                                        <constraint firstAttribute="bottom" secondItem="13O-AF-4SO" secondAttribute="bottom" constant="5" id="YOt-dr-oW0"/>
+                                        <constraint firstItem="13O-AF-4SO" firstAttribute="width" secondItem="ekH-WK-mPw" secondAttribute="height" multiplier="0.65" id="ii1-zx-jDI"/>
+                                        <constraint firstItem="c67-6l-DNL" firstAttribute="top" secondItem="ekH-WK-mPw" secondAttribute="top" constant="11" id="kS5-p4-2dR"/>
+                                        <constraint firstItem="nJY-zC-1iD" firstAttribute="top" secondItem="c67-6l-DNL" secondAttribute="bottom" constant="2.5" id="pfw-u0-3ul"/>
+                                        <constraint firstItem="c67-6l-DNL" firstAttribute="leading" secondItem="13O-AF-4SO" secondAttribute="trailing" constant="11" id="sGf-Ud-rAj"/>
+                                        <constraint firstItem="13O-AF-4SO" firstAttribute="leading" secondItem="ekH-WK-mPw" secondAttribute="leading" constant="7" id="yJW-bK-LbY"/>
+                                    </constraints>
+                                    <variation key="default">
+                                        <mask key="constraints">
+                                            <exclude reference="pfw-u0-3ul"/>
+                                        </mask>
+                                    </variation>
                                 </tableViewCellContentView>
-                                <color key="backgroundColor" red="0.95968918150000004" green="0.1830261986" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <connections>
+                                    <outlet property="genre" destination="nJY-zC-1iD" id="vsE-dl-VJT"/>
+                                    <outlet property="poster" destination="13O-AF-4SO" id="dbv-R5-s4U"/>
+                                    <outlet property="title" destination="c67-6l-DNL" id="9XV-5u-wua"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -58,4 +101,7 @@
             <point key="canvasLocation" x="1332" y="-30.134932533733135"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="titanic" width="2015" height="3000"/>
+    </resources>
 </document>
