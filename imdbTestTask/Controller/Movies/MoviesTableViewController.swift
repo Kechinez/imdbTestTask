@@ -10,8 +10,11 @@ import UIKit
 
 class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
 
-    var moviesList: [Movie] = []
     
+    weak var observablePosterImage: UIImage?
+    var moviesList: [Movie] = []
+    var indexPathOfDownloadingCells: Set<IndexPath> = []
+    var posterCache = NSCache<NSString, UIImage>()
     override func viewDidLoad() {
         super.viewDidLoad()
         createSearchBar()
@@ -28,6 +31,8 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
         searchBar.placeholder = "search the movies"
         navigationItem.titleView = searchBar
     }
+    
+    
     
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -47,7 +52,23 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
         searchBar.resignFirstResponder()
     }
     
-
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "MovieDetailsSegue" {
+            guard let indexPath = tableView.indexPathForSelectedRow else { return }
+            guard let nextVC = segue.destination as? MovieDetailViewController else { return }
+            let movie = moviesList[indexPath.row]
+            
+            nextVC.movieId = movie.id
+            let key = NSString(string: movie.posterUrl)
+            if let poster = posterCache.object(forKey: key) {
+                nextVC.posterImage = poster
+            } else {
+                observablePosterImage = nextVC.observablePosterImage
+            }
+        }
+    }
+    
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -64,14 +85,51 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "movieCell", for: indexPath) as! MovieCell
         let movie = moviesList[indexPath.row]
+        
+        if let indexPathsForVisibleRows = tableView.indexPathsForVisibleRows {
+            let onScreenCellsIndexPath = Set(indexPathsForVisibleRows)
+            let indexPathToBeCancelled = indexPathOfDownloadingCells.subtracting(onScreenCellsIndexPath)
+            for indexPath in indexPathToBeCancelled {
+                NetworkManager.shared.cancelDownloadingTaskForCellAt(indexPath)
+            }
+        }
+        let key = NSString(string: movie.posterUrl)
+        if let poster = posterCache.object(forKey: key) {
+            cell.poster.image = poster
+        } else {
+            NetworkManager.shared.getPoster(with: movie.posterUrl, forCellAt: indexPath) {  [weak cell, weak self] (result) in
+                switch result {
+                case .success(let data):
+                    guard let image = UIImage(data: data) else { return }
+                    let key = NSString(string: movie.posterUrl)
+                    self?.posterCache.setObject(image, forKey: key)
+                    cell?.poster.image = image
+                    self?.indexPathOfDownloadingCells.remove(indexPath)
+                    
+                    if tableView.indexPathForSelectedRow != nil {
+                        self?.observablePosterImage = image
+                    }
+                    
+                case .failure(let error):
+                    print(error)
+                    //guard let currentVC = self else { return }
+                    //ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
+                }
+            }
+        }
+        
+        
         cell.title.text = movie.title
         cell.genre.text = movie.year
-        
-
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 
-
+    
+    
+    
 
 }
