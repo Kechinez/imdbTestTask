@@ -18,6 +18,7 @@
 		3DDBBD702175DE4C00796D05 /* MovieDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDBBD6F2175DE4C00796D05 /* MovieDetailViewController.swift */; };
 		3DDBBD722175DEF200796D05 /* MovieInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDBBD712175DEF200796D05 /* MovieInfo.swift */; };
 		3DDBBD742175ED7000796D05 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDBBD732175ED7000796D05 /* Extensions.swift */; };
+		3DDBBD76217722D900796D05 /* ErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDBBD75217722D900796D05 /* ErrorManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		3DDBBD6F2175DE4C00796D05 /* MovieDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailViewController.swift; sourceTree = "<group>"; };
 		3DDBBD712175DEF200796D05 /* MovieInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieInfo.swift; sourceTree = "<group>"; };
 		3DDBBD732175ED7000796D05 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		3DDBBD75217722D900796D05 /* ErrorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +160,7 @@
 				3DDBBD572174CB3600796D05 /* Info.plist */,
 				3DDBBD692174E1A100796D05 /* Network.swift */,
 				3DDBBD732175ED7000796D05 /* Extensions.swift */,
+				3DDBBD75217722D900796D05 /* ErrorManager.swift */,
 			);
 			path = "Support files";
 			sourceTree = "<group>";
@@ -233,6 +236,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3DDBBD76217722D900796D05 /* ErrorManager.swift in Sources */,
 				3DDBBD722175DEF200796D05 /* MovieInfo.swift in Sources */,
 				3DDBBD682174D40E00796D05 /* MoviesTableViewController.swift in Sources */,
 				3DDBBD4C2174CB3300796D05 /* AppDelegate.swift in Sources */,

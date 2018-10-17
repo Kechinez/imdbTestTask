@@ -144,3 +144,18 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
     
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

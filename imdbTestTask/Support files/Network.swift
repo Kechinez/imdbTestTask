@@ -53,57 +53,98 @@ final class NetworkManager {
     private let session = URLSession(configuration: .default)
     private var runningDownloadingTasks: [String: URLSessionDataTask] = [:]
     
+    //MARK: - Downloding
+    func getMoviesList(with searchTitle: String, completionHandler: @escaping ((APIResult<[Movie]>) -> ())) {
+        guard let request = ApiRequests.getMoviesList(searchTitle).request else { return }
+        let dataTask = session.dataTask(with: request) { (data, response, error) in
+            guard error == nil && data != nil else {
+                self.returnHandlerOnMainQueue(with: .failure(error!), handler: completionHandler)
+                return
+            }
+            
+            let responseChecked = self.isResponseValid(response: response)
+            guard responseChecked.bool else {
+                self.returnHandlerOnMainQueue(with: .failure(responseChecked.error!), handler: completionHandler)
+                return
+            }
+            
+            do {
+                let movieList = try JSONDecoder().decode(Search.self, from: data!)
+                self.returnHandlerOnMainQueue(with: .success(movieList.result), handler: completionHandler)
+                return
+            } catch let error {
+                self.returnHandlerOnMainQueue(with: .failure(error), handler: completionHandler)
+                return
+            }
+        }
+        dataTask.resume()
+    }
+    
+    func getPoster(with posterUrl: String, forCellAt indexPath: IndexPath, completionHandler: @escaping ((APIResult<Data>) -> ())) {
+        guard let url = URL(string: posterUrl) else { return }
+        let request = URLRequest(url: url)
+        let dataTask = session.dataTask(with: request) { (data, response, error) in
+            guard error == nil && data != nil else {
+                self.returnHandlerOnMainQueue(with: .failure(error!), handler: completionHandler)
+                return
+            }
+            
+            let responseChecked = self.isResponseValid(response: response)
+            guard responseChecked.bool else {
+                self.returnHandlerOnMainQueue(with: .failure(responseChecked.error!), handler: completionHandler)
+                return
+            }
+            
+            let key = String(indexPath.row)
+            self.runningDownloadingTasks.removeValue(forKey: key)
+            self.returnHandlerOnMainQueue(with: .success(data!), handler: completionHandler)
+        }
+        dataTask.resume()
+        let key = String(indexPath.row)
+        runningDownloadingTasks[key] = dataTask
+    }
+    
+    func getMovieInfo(with movieId: String, completionHandler: @escaping ((APIResult<MovieInfo>) -> ())) {
+        guard let request = ApiRequests.getMovie(movieId).request else { return }
+        let dataTask = session.dataTask(with: request) { (data, response, error) in
+            guard error == nil && data != nil else {
+                self.returnHandlerOnMainQueue(with: .failure(error!), handler: completionHandler)
+                return
+            }
+            
+            let responseChecked = self.isResponseValid(response: response)
+            guard responseChecked.bool else {
+                self.returnHandlerOnMainQueue(with: .failure(responseChecked.error!), handler: completionHandler)
+                return
+            }
+            
+            do {
+                let movieInfo = try JSONDecoder().decode(MovieInfo.self, from: data!)
+                self.returnHandlerOnMainQueue(with: .success(movieInfo), handler: completionHandler)
+                return
+            } catch let error {
+                self.returnHandlerOnMainQueue(with: .failure(error), handler: completionHandler)
+                return
+            }
+            
+        }
+        dataTask.resume()
+    }
+    
+    //MARK: Supporting methods
     private func returnHandlerOnMainQueue<T>(with result: APIResult<T>, handler: @escaping ((APIResult<T>) -> ())) {
         DispatchQueue.main.async {
             handler(result)
         }
     }
     
-    func getMoviesList(with searchTitle: String, completionHandler: @escaping ((APIResult<[Movie]>) -> ())) {
-        guard let request = ApiRequests.getMoviesList(searchTitle).request else { return }
-        
-        print(request.url!)
-        
-        let dataTask = session.dataTask(with: request) { [weak self] (data, response, error) in
-            guard let httpResponse = response as? HTTPURLResponse else {
-                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Server replied with invalid protocol!", comment: "")]
-                let httpError = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
-                self?.returnHandlerOnMainQueue(with: .failure(httpError), handler: completionHandler)
-                return
-            }
-            guard error == nil && data != nil else {
-                self?.returnHandlerOnMainQueue(with: .failure(error!), handler: completionHandler)
-                return
-            }
-            switch httpResponse.statusCode {
-            case 200:
-                do {
-                    let movieList = try JSONDecoder().decode(Search.self, from: data!)
-                    self?.returnHandlerOnMainQueue(with: .success(movieList.result), handler: completionHandler)
-                    return
-                } catch let error {
-                    self?.returnHandlerOnMainQueue(with: .failure(error), handler: completionHandler)
-                    return
-                }
-            default:
-                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Requested resource could not be found!", comment: "")]
-                let error = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
-                self?.returnHandlerOnMainQueue(with: .failure(error), handler: completionHandler)
-                return
-            }
-        }
-        dataTask.resume()
+    func cancelDownloadingTaskForCellAt(_ indexPath: IndexPath) {
+        let key = String(indexPath.row)
+        guard let taskToBeCancelled = runningDownloadingTasks.removeValue(forKey: key) else { return }
+        taskToBeCancelled.cancel()
     }
-//    private func checkSessionDataTaskHandler(handler: ((Data?, URLResponse?, Error?) -> ())) -> HTTPURLResponse? {
-//        guard let httpResponse = handler.(<#T##Data?#>, <#T##URLResponse?#>, <#T##Error?#>) as? HTTPURLResponse else {
-//            let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Server replied with invalid protocol!", comment: "")]
-//            let httpError = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
-//            self?.returnHandlerOnMainQueue(with: .failure(httpError), handler: completionHandler)
-//            return
-//        }
-//    }
     
-    private func isResponseValid(response: URLResponse?) -> (Bool, Error?) {
+    private func isResponseValid(response: URLResponse?) -> (bool: Bool, error: Error?) {
         guard let httpResponse = response as? HTTPURLResponse else {
             let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Server replied with invalid protocol!", comment: "")]
             let httpError = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
@@ -118,79 +159,5 @@ final class NetworkManager {
             return (false, httpError)
         }
     }
-    
-    func getPoster(with posterUrl: String, forCellAt indexPath: IndexPath, completionHandler: @escaping ((APIResult<Data>) -> ())) {
-        guard let url = URL(string: posterUrl) else { return }
-        let request = URLRequest(url: url)
-        let dataTask = session.dataTask(with: request) { [weak self] (data, response, error) in
-            guard let httpResponse = response as? HTTPURLResponse else {
-                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Server replied with invalid protocol!", comment: "")]
-                let httpError = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
-                self?.returnHandlerOnMainQueue(with: .failure(httpError), handler: completionHandler)
-                return
-            }
-            guard error == nil && data != nil else {
-                self?.returnHandlerOnMainQueue(with: .failure(error!), handler: completionHandler)
-                return
-            }
-            switch httpResponse.statusCode {
-            case 200:
-                let key = String(indexPath.row)
-                self?.runningDownloadingTasks.removeValue(forKey: key)
-                self?.returnHandlerOnMainQueue(with: .success(data!), handler: completionHandler)
-            default:
-                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Requested resource could not be found!", comment: "")]
-                let error = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
-                self?.returnHandlerOnMainQueue(with: .failure(error), handler: completionHandler)
-                return
-            }
-        }
-        dataTask.resume()
-        let key = String(indexPath.row)
-        runningDownloadingTasks[key] = dataTask
-    }
-    
-    func getMovieInfo(with movieId: String, completionHandler: @escaping ((APIResult<MovieInfo>) -> ())) {
-        guard let request = ApiRequests.getMovie(movieId).request else { return }
-        print(request.url!)
-        
-        let dataTask = session.dataTask(with: request) { [weak self] (data, response, error) in
-            guard let httpResponse = response as? HTTPURLResponse else {
-                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Server replied with invalid protocol!", comment: "")]
-                let httpError = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
-                self?.returnHandlerOnMainQueue(with: .failure(httpError), handler: completionHandler)
-                return
-            }
-            guard error == nil && data != nil else {
-                self?.returnHandlerOnMainQueue(with: .failure(error!), handler: completionHandler)
-                return
-            }
-            switch httpResponse.statusCode {
-            case 200:
-                do {
-                    let movieInfo = try JSONDecoder().decode(MovieInfo.self, from: data!)
-                    self?.returnHandlerOnMainQueue(with: .success(movieInfo), handler: completionHandler)
-                    return
-                } catch let error {
-                    self?.returnHandlerOnMainQueue(with: .failure(error), handler: completionHandler)
-                    return
-                }
-            default:
-                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Requested resource could not be found!", comment: "")]
-                let error = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
-                self?.returnHandlerOnMainQueue(with: .failure(error), handler: completionHandler)
-                return
-            }
-        }
-        dataTask.resume()
-    }
-    
-    func cancelDownloadingTaskForCellAt(_ indexPath: IndexPath) {
-        let key = String(indexPath.row)
-        guard let taskToBeCancelled = runningDownloadingTasks.removeValue(forKey: key) else { return }
-        taskToBeCancelled.cancel()
-    }
-            
-    
     
 }
