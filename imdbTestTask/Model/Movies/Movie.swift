@@ -39,7 +39,6 @@ extension Movie: Decodable {
         case year = "Year"
         case posterUrl = "Poster"
         case id = "imdbID"
-        
     }
     
     init(from decoder: Decoder) throws {

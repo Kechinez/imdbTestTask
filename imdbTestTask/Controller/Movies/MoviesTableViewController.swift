@@ -8,61 +8,20 @@
 
 import UIKit
 
-class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
-
-    
+class MoviesTableViewController: UIViewController {
+    @IBOutlet weak var tableView: UITableView!
     weak var observablePosterImage: UIImage?
-    var moviesList: [Movie] = []
-    var indexPathOfDownloadingCells: Set<IndexPath> = []
-    var posterCache = NSCache<NSString, UIImage>()
+    private var moviesList: [Movie] = []
+    private var indexPathOfDownloadingCells: Set<IndexPath> = []
+    private var posterCache = NSCache<NSString, UIImage>()
+    
+    //MARK: - ViewController life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         createSearchBar()
-        //tableView.rowHeight = 94
-        //tableView.rowHeight = UITableViewAutomaticDimension
-        //tableView.estimatedRowHeight = 110
-        //tableView.estimatedRowHeight = 300
-        
     }
 
-    
-    private func createSearchBar() {
-        let searchBar = UISearchBar()
-        searchBar.delegate = self
-        searchBar.showsCancelButton = false
-        searchBar.placeholder = "search the movies"
-        navigationItem.titleView = searchBar
-    }
-    
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchBar.setShowsCancelButton(true, animated: true)
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-        searchBar.setShowsCancelButton(false, animated: true)
-    }
-    
-    
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        NetworkManager.shared.getMoviesList(with: searchBar.text!) { [weak self] (moviesList) in
-            switch moviesList {
-            case .success(let tempMoviesList):
-                print(tempMoviesList)
-                self?.moviesList = tempMoviesList
-                self?.tableView.reloadData()
-            case .failure(let error):
-                print(error)
-                //guard let currentVC = self else { return }
-                //ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
-            }
-        }
-        //searchBar.isFirstResponder = false
-        searchBar.resignFirstResponder()
-        searchBar.setShowsCancelButton(false, animated: true)
-    }
-    
+    //MARK: - Segue methods
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "MovieDetailsSegue" {
             guard let indexPath = tableView.indexPathForSelectedRow else { return }
@@ -79,21 +38,51 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
         }
     }
     
+    //MARK: - Supporting methods
+    private func createSearchBar() {
+        let searchBar = UISearchBar()
+        searchBar.delegate = self
+        searchBar.showsCancelButton = false
+        searchBar.placeholder = "search the movies"
+        navigationItem.titleView = searchBar
+    }
     
-    // MARK: - Table view data source
+    private func getPoster(with id: String, forCellAt indexPath: IndexPath) {
+        NetworkManager.shared.getPoster(with: id, forCellAt: indexPath) {  [weak self] (result) in
+            switch result {
+            case .success(let data):
+                guard let image = UIImage(data: data) else { return }
+                let key = NSString(string: id)
+                self?.posterCache.setObject(image, forKey: key)
+                self?.indexPathOfDownloadingCells.remove(indexPath)
+                guard let currentCell = self?.tableView.cellForRow(at: indexPath) as? MovieCell else { return }
+                currentCell.poster.image = image
+                
+                if self?.tableView.indexPathForSelectedRow != nil {
+                    self?.observablePosterImage = image
+                }
+                
+            case .failure(let error):
+                print(error)
+                guard let currentVC = self else { return }
+                ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
+            }
+        }
+    }
+    
+}
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
+//MARK: TableViewController Delegate and DataSourse
+extension MoviesTableViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return moviesList.count
     }
-
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "movieCell", for: indexPath) as! MovieCell
         let movie = moviesList[indexPath.row]
         
@@ -104,58 +93,49 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
                 NetworkManager.shared.cancelDownloadingTaskForCellAt(indexPath)
             }
         }
+        
         let key = NSString(string: movie.posterUrl)
         if let poster = posterCache.object(forKey: key) {
             cell.poster.image = poster
         } else {
-            NetworkManager.shared.getPoster(with: movie.posterUrl, forCellAt: indexPath) {  [weak cell, weak self] (result) in
-                switch result {
-                case .success(let data):
-                    guard let image = UIImage(data: data) else { return }
-                    let key = NSString(string: movie.posterUrl)
-                    self?.posterCache.setObject(image, forKey: key)
-                    cell?.poster.image = image
-                    self?.indexPathOfDownloadingCells.remove(indexPath)
-                    
-                    if tableView.indexPathForSelectedRow != nil {
-                        self?.observablePosterImage = image
-                    }
-                    
-                case .failure(let error):
-                    print(error)
-                    //guard let currentVC = self else { return }
-                    //ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
-                }
-            }
+            getPoster(with: movie.posterUrl, forCellAt: indexPath)
         }
-        
         
         cell.title.text = movie.title
         cell.genre.text = movie.year
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
-
-    
-    
-    
-
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+//MARK: - UISearchBar Delegate
+extension MoviesTableViewController: UISearchBarDelegate {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        NetworkManager.shared.getMoviesList(with: searchBar.text!) { [weak self] (moviesList) in
+            switch moviesList {
+            case .success(let tempMoviesList):
+                print(tempMoviesList)
+                self?.moviesList = tempMoviesList
+                self?.tableView.reloadData()
+            case .failure(let error):
+                guard let currentVC = self else { return }
+                ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
+            }
+        }
+        searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
+    }
+}
 

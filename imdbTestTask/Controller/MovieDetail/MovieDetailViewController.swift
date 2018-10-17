@@ -27,18 +27,7 @@ class MovieDetailViewController: UIViewController {
     }
     private var movieInfo: MovieInfo?
     
-    
-    private func updatePoster() {
-        guard let image = posterImage else { return }
-        poster.image = image
-    }
-    
-    
-    
-    func updatingPoster(with image: UIImage) {
-        poster.image = image
-    }
-    
+    //MARK: - ViewController lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         guard let id = movieId else { return }
@@ -48,26 +37,27 @@ class MovieDetailViewController: UIViewController {
                 self?.updateUI(with: movieInfo)
             case .failure(let error):
                 print(error)
-                //guard let currentVC = self else { return }
-                //ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
+                guard let currentVC = self else { return }
+                ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
             }
         }
-        
-        
-        
     }
-
+    
+    //MARK: updating UI
+    private func updatePoster() {
+        guard let image = posterImage else { return }
+        poster.image = image
+    }
+    
     private func updateUI(with movieInfo: MovieInfo) {
         movieTitle.text = movieInfo.title
         country.text = movieInfo.country
         rating.text = movieInfo.rating
         director.text = movieInfo.director
         stars.text = movieInfo.actors
-        plot.text = "A custom header has a label that is added to the header’s content view. A custom cell has a label that is added to the cell’s content view and a separator that is added to the cell. The header and cells are transparent. A cell’s content view has a white background. A header’s content view has a red background. You can see that the header’s and the cell’s content view frame is changed in landscape orientation. At the same time the cell and the separator frames aren’t changed. It’s a default behavior which can be managed by the new UITableView’s insetsContentViewsToSafeArea property:"//movieInfo.plot
+        plot.text = movieInfo.plot
         guard let image = posterImage else { return }
         poster.image = image
-        
     }
     
-
 }

@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 struct MovieInfo {
     let title: String
     let rating: String
@@ -20,6 +19,7 @@ struct MovieInfo {
 
 }
 
+//MARK: MovieInfo's Decodable implementation
 extension MovieInfo: Decodable {
     private enum MovieInfoStructKeys: String, CodingKey {
         case title = "Title"
@@ -28,7 +28,6 @@ extension MovieInfo: Decodable {
         case director = "Director"
         case actors = "Actors"
         case plot = "Plot"
-        
     }
     
     init(from decoder: Decoder) throws {
@@ -45,4 +44,3 @@ extension MovieInfo: Decodable {
         self.init(title: title, rating: rating, country: country, director: director, actors: actors, plot: plot)
     }
 }
-
