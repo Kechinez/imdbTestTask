@@ -14,11 +14,12 @@ class MoviesTableViewController: UIViewController {
     private var moviesList: [Movie] = []
     private var indexPathOfDownloadingCells: Set<IndexPath> = []
     private var posterCache = NSCache<NSString, UIImage>()
-    
+    private var didTapDeleteKey = false
     //MARK: - ViewController life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         createSearchBar()
+        tableView.rowHeight = CGFloat.calculateCellHeight(accordingTo: view.frame.width)
     }
 
     //MARK: - Segue methods
@@ -47,6 +48,12 @@ class MoviesTableViewController: UIViewController {
         navigationItem.titleView = searchBar
     }
     
+    private func cleanTableView() {
+        moviesList.removeAll()
+        tableView.reloadData()
+    }
+    
+    //MARK: - Networking
     private func getPoster(with id: String, forCellAt indexPath: IndexPath) {
         NetworkManager.shared.getPoster(with: id, forCellAt: indexPath) {  [weak self] (result) in
             switch result {
@@ -64,6 +71,19 @@ class MoviesTableViewController: UIViewController {
                 
             case .failure(let error):
                 print(error)
+                guard let currentVC = self else { return }
+                ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
+            }
+        }
+    }
+    
+    private func getMovies(at keyword: String) {
+        NetworkManager.shared.getMoviesList(with: keyword) { [weak self] (moviesList) in
+            switch moviesList {
+            case .success(let tempMoviesList):
+                self?.moviesList = tempMoviesList
+                self?.tableView.reloadData()
+            case .failure(let error):
                 guard let currentVC = self else { return }
                 ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
             }
@@ -122,18 +142,21 @@ extension MoviesTableViewController: UISearchBarDelegate {
         searchBar.setShowsCancelButton(false, animated: true)
     }
     
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        NetworkManager.shared.getMoviesList(with: searchBar.text!) { [weak self] (moviesList) in
-            switch moviesList {
-            case .success(let tempMoviesList):
-                print(tempMoviesList)
-                self?.moviesList = tempMoviesList
-                self?.tableView.reloadData()
-            case .failure(let error):
-                guard let currentVC = self else { return }
-                ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
-            }
+    func searchBar(_ searchBar: UISearchBar, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        didTapDeleteKey = text.isEmpty
+        return true
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if !didTapDeleteKey && searchText.isEmpty {
+            cleanTableView()
         }
+        didTapDeleteKey = false
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let keyword = searchBar.text else { return }
+        getMovies(at: keyword)
         searchBar.resignFirstResponder()
         searchBar.setShowsCancelButton(false, animated: true)
     }

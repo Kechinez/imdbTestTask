@@ -53,7 +53,7 @@ final class NetworkManager {
     private let session = URLSession(configuration: .default)
     private var runningDownloadingTasks: [String: URLSessionDataTask] = [:]
     
-    //MARK: - Downloding
+    //MARK: - Downloading
     func getMoviesList(with searchTitle: String, completionHandler: @escaping ((APIResult<[Movie]>) -> ())) {
         guard let request = ApiRequests.getMoviesList(searchTitle).request else { return }
         let dataTask = session.dataTask(with: request) { (data, response, error) in
