@@ -7,8 +7,6 @@
 //
 
 import Foundation
-public typealias JSON = [String: Any]
-
 
 public enum APIResult<T> {
     case success(T)
@@ -19,9 +17,7 @@ public enum APIResult<T> {
 private enum ApiRequests {
     case getMoviesList(String)
     case getMovie(String)
-    //http://www.omdbapi.com/?apikey=4a8f0e16&t&s=titanic
-    //tt0120338
-    //http://www.omdbapi.com/?apikey=4a8f0e16&t&i=tt0120338
+    
     private var baseURL: URL? {
         let urlString = String("http://www.omdbapi.com/")
         return URL(string: urlString)
@@ -53,11 +49,8 @@ private enum ApiRequests {
 //MARK: Network manager
 final class NetworkManager {
     static let shared = NetworkManager()
-    
-    init() {}
-    
+    private init() {}
     private let session = URLSession(configuration: .default)
-    private var getRouteTask: URLSessionTask?
     private var runningDownloadingTasks: [String: URLSessionDataTask] = [:]
     
     private func returnHandlerOnMainQueue<T>(with result: APIResult<T>, handler: @escaping ((APIResult<T>) -> ())) {
@@ -100,6 +93,30 @@ final class NetworkManager {
             }
         }
         dataTask.resume()
+    }
+//    private func checkSessionDataTaskHandler(handler: ((Data?, URLResponse?, Error?) -> ())) -> HTTPURLResponse? {
+//        guard let httpResponse = handler.(<#T##Data?#>, <#T##URLResponse?#>, <#T##Error?#>) as? HTTPURLResponse else {
+//            let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Server replied with invalid protocol!", comment: "")]
+//            let httpError = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
+//            self?.returnHandlerOnMainQueue(with: .failure(httpError), handler: completionHandler)
+//            return
+//        }
+//    }
+    
+    private func isResponseValid(response: URLResponse?) -> (Bool, Error?) {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Server replied with invalid protocol!", comment: "")]
+            let httpError = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
+            return (false, httpError)
+        }
+        switch httpResponse.statusCode {
+        case 200:
+            return (true, nil)
+        default:
+            let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Requested resource could not be found!", comment: "")]
+            let httpError = NSError(domain: "errorDomain", code: 100, userInfo: userInfo)
+            return (false, httpError)
+        }
     }
     
     func getPoster(with posterUrl: String, forCellAt indexPath: IndexPath, completionHandler: @escaping ((APIResult<Data>) -> ())) {

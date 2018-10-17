@@ -130,7 +130,7 @@ class MoviesTableViewController: UITableViewController, UISearchBarDelegate {
         }
         
         
-        cell.title.text = movie.title//"The great history of how germans took a shit and then went away. Part I"movie.title
+        cell.title.text = movie.title
         cell.genre.text = movie.year
         return cell
     }
