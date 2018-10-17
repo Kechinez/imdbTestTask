@@ -19,14 +19,4 @@ extension CGFloat {
         return deviceWidth * multiplyer
     }
 }
-        //        if UIDevice().userInterfaceIdiom == .phone {
-//            switch UIScreen.main.nativeBounds.height {
-//            case 1334, 2436:                                         // iPhone 6/6S/7/8/X
-//                return
-//            case 1920, 2208:                                           // iPhone 6+/6S+/7+/8+
-//
-//            default:                                                    //iPhone 5 or 5S or 5C
-//
-//            }
-//        }
- 
+

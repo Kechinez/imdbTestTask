@@ -58,7 +58,6 @@ class MovieDetailViewController: UIViewController {
     }
     
     private func makeBackgroundVisible() {
-        //background.bringSubview(toFront: <#T##UIView#>)
         activityIndicator.startAnimating()
         background.backgroundColor = #colorLiteral(red: 0.1357881738, green: 0.1359588061, blue: 0.1329782852, alpha: 1)
     }
