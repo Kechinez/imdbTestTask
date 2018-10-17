@@ -15,6 +15,7 @@ class MoviesTableViewController: UIViewController {
     private var indexPathOfDownloadingCells: Set<IndexPath> = []
     private var posterCache = NSCache<NSString, UIImage>()
     private var didTapDeleteKey = false
+    
     //MARK: - ViewController life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,6 +56,7 @@ class MoviesTableViewController: UIViewController {
     
     //MARK: - Networking
     private func getPoster(with id: String, forCellAt indexPath: IndexPath) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         NetworkManager.shared.getPoster(with: id, forCellAt: indexPath) {  [weak self] (result) in
             switch result {
             case .success(let data):
@@ -74,10 +76,12 @@ class MoviesTableViewController: UIViewController {
                 guard let currentVC = self else { return }
                 ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
             }
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
     
     private func getMovies(at keyword: String) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         NetworkManager.shared.getMoviesList(with: keyword) { [weak self] (moviesList) in
             switch moviesList {
             case .success(let tempMoviesList):
@@ -87,6 +91,7 @@ class MoviesTableViewController: UIViewController {
                 guard let currentVC = self else { return }
                 ErrorManager.showErrorMessage(with: error, shownAt: currentVC)
             }
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
     

@@ -17,9 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         UINavigationBar.appearance().tintColor = .white
-        UINavigationBar.appearance().barTintColor = #colorLiteral(red: 0.1596844052, green: 0.1596844052, blue: 0.1596844052, alpha: 1)
+        UINavigationBar.appearance().barTintColor = #colorLiteral(red: 0.137254902, green: 0.137254902, blue: 0.1333333333, alpha: 1)
         UIApplication.shared.statusBarStyle = .lightContent
-        //UINavigationBar.appearance().isTranslucent = false
         return true
     }
 
