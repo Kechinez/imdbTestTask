@@ -20,7 +20,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().barTintColor = #colorLiteral(red: 0.137254902, green: 0.137254902, blue: 0.1333333333, alpha: 1)
         UIApplication.shared.statusBarStyle = .lightContent
         
-        let tets = MovieDetailViewController()
+        let x = MovieDetailViewController()
+        if x != nil {
+            print("!!!")
+        }
+        
+        if x == nil {
+            print("NNO")
+        }
+        
         return true
     }
 
