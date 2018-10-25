@@ -20,3 +20,8 @@ extension CGFloat {
     }
 }
 
+extension UIView {
+    func fakeFunction() {
+        print("fake!")
+    }
+}
