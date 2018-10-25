@@ -39,3 +39,22 @@ extension Int {
     }
 }
 
+extension UIView {
+    func fakeFunction() {
+        print("fake!")
+    }
+}
+
+extension UILabel {
+    func fakeFunction2() {
+        print("fake!")
+    }
+}
+
+
+extension Int {
+    func isOdd() -> Bool {
+        return (self % 2) == 0
+    }
+}
+
