@@ -25,3 +25,9 @@ extension UIView {
         print("fake!")
     }
 }
+
+extension UILabel {
+    func fakeFunction2() {
+        print("fake!")
+    }
+}
