@@ -178,5 +178,19 @@ protocol TestingProtocol {
 }
 
 
+//MARK: - NewClass
+
+class testClass {
+    let e = "@@"
+    let a = 34
+    
+    func testFunc() {
+        print("Hello World!")
+    }
+    func showE() {
+        print(e)
+    }
+    
+}
 
 
