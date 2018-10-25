@@ -193,4 +193,8 @@ class testClass {
     
 }
 
-
+class AnotherClasJustForTesting {
+    let t = 5
+    let y = 12233
+    let w = "wweerr"
+}
