@@ -197,4 +197,17 @@ class AnotherClasJustForTesting {
     let t = 5
     let y = 12233
     let w = "wweerr"
+    
+    //methods
+    func firstTestMethod(integer: Int) -> String {
+        return String(integer)
+    }
+    
+    func secondTestMethod() {
+        print("test test")
+    }
 }
+
+
+
+
