@@ -161,3 +161,22 @@ final class NetworkManager {
     }
     
 }
+//MARK: - protocols
+
+protocol NetworkProtocol {
+    func getDatabase(with id: String) -> [String: Any]
+    func getEntity(with raw: String) -> String
+}
+
+protocol NetworkChecking {
+    func isNetworkExist() -> Bool
+    func didHaveError(with id: String) -> Bool
+}
+
+protocol TestingProtocol {
+    func zdrastitya()
+}
+
+
+
+
